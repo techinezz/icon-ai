@@ -70,7 +70,7 @@ const Page = () => {
             Icon AI
           </h1>
           <p className="text-lg md:text-2xl text-white mb-8">
-            The most powerful AI ever deployed in talent acquisition
+            The most powerful AI
           </p>
           <button className="relative px-8 py-4 bg-transparent border-2 border-gray-500 text-white text-lg rounded-full transition duration-300 overflow-hidden hover:border-gradient-to-r hover:from-red-500 hover:to-orange-600">
             Get Started
