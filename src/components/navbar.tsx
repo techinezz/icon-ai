@@ -2,8 +2,20 @@
 import { useState } from 'react';
 import { Transition } from '@headlessui/react';
 import { UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from "@/lib/utils";
+
+const routes = [
+  { name: 'Message', href: '/message' },
+  { name: 'Code', href: '/code' },
+  { name: 'Image', href: '/image' },
+  { name: 'Video', href: '/video' },
+  { name: 'Music', href: '/music' },
+];
 
 const Navbar = () => {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -11,11 +23,17 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <a href="/dashboard" className="text-xl font-bold hover:text-red-500">Icon AI</a>
         <div className="hidden md:flex space-x-8">
-            <a href="/conversation" className="hover:text-red-500">Message</a>
-            <a href="/code" className="hover:text-red-500">Code</a>
-            <a href="/image" className="hover:text-red-500">Image</a>
-            <a href="/video" className="hover:text-red-500">Video</a>
-            <a href="/music" className="hover:text-red-500">Music</a>
+          {routes.map((route) => (
+            <Link
+            href={route.href}
+            key={route.href}
+            >
+              <div 
+              className={cn("hover:text-red-500",
+                pathname === route.href ? "font-bold text-red-500" : "text-gray-300"
+              )}>{route.name}</div>
+            </Link>
+          ))}
         </div>
         <div className="hidden md:flex space-x-8">
             <UserButton />
@@ -33,7 +51,7 @@ const Navbar = () => {
               </svg>
             )}
           </button>
-        </div>
+        </div> 
       </div>
       
       <Transition
@@ -55,11 +73,18 @@ const Navbar = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <a href="/conversation" className="hover:text-gray-400">Yap</a>
-            <a href="/code" className="hover:text-gray-400">Code</a>
-            <a href="/image" className="hover:text-gray-400">Image</a>
-            <a href="/video" className="hover:text-gray-400">Video</a>
-            <a href="/music" className="hover:text-gray-400">Music</a>
+            {routes.map((route) => (
+            <Link
+            href={route.href}
+            key={route.href}
+            >
+              <div 
+              className={cn("hover:text-red-500",
+                pathname === route.href ? "bold text-red-500" : "text-white"
+              )}
+              >{route.name}</div>
+            </Link>
+          ))}
             <div className="flex space-x-4">
                 <UserButton />
             </div>
