@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import Head from 'next/head';
 
-const Page = () => {
+const LandingPage = () => {
   const vantaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default LandingPage;
 
 
 
