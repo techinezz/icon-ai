@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 
 const LandingPage = () => {
   const vantaRef = useRef<HTMLDivElement>(null);
@@ -57,9 +58,11 @@ const LandingPage = () => {
         <nav className="absolute top-0 left-0 right-0 flex justify-center items-center py-4 px-6 z-20">
           <div className="flex items-center" style={{ gap: '40rem' }}>
             <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600">Icon AI</div>
+            <Link href="/sign-in">
             <button className="relative px-4 py-2 bg-transparent border-2 border-gray-500 text-white text-sm rounded-full transition duration-300 overflow-hidden hover:border-gradient-to-r hover:from-red-500 hover:to-orange-600">
-              Log In
+              Sign In
             </button>
+            </Link>
           </div>
         </nav>
         <div className="absolute" style={{ top: '4.3rem', left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent 30%, red 50%, transparent 70%)', zIndex: 10 }}></div>
@@ -72,9 +75,11 @@ const LandingPage = () => {
           <p className="text-lg md:text-2xl text-white mb-8">
             The most powerful AI
           </p>
+          <Link href="/sign-up">
           <button className="relative px-8 py-4 bg-transparent border-2 border-gray-500 text-white text-lg rounded-full transition duration-300 overflow-hidden hover:border-gradient-to-r hover:from-red-500 hover:to-orange-600">
             Get Started
           </button>
+          </Link>
         </div>
       </div>
     </>
