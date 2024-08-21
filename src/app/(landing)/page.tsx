@@ -1,8 +1,9 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
 import Head from 'next/head';
+import ShimmerButton from "@/components/magicui/shimmer-button";
 
-const Page = () => {
+const LandingPage = () => {
   const vantaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,41 +54,38 @@ const Page = () => {
         <title>Icon AI</title>
       </Head>
       <div ref={vantaRef} className="relative w-full h-screen overflow-hidden">
-        {/* Centered Navbar with Custom Gap and Fading Line */}
+        {/* Centered Navbar with Shimmer Button */}
         <nav className="absolute top-0 left-0 right-0 flex justify-center items-center py-4 px-6 z-20">
           <div className="flex items-center" style={{ gap: '40rem' }}>
             <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600">Icon AI</div>
-            <button className="relative px-4 py-2 bg-transparent border-2 border-gray-500 text-white text-sm rounded-full transition duration-300 overflow-hidden hover:border-gradient-to-r hover:from-red-500 hover:to-orange-600">
-              Log In
-            </button>
+            <div className="z-10 flex min-h-[16rem] items-center justify-center">
+            <ShimmerButton className="shadow-2xl">
+            <span className="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10 lg:text-lg">
+            Login
+            </span>
+            </ShimmerButton>
+            </div>
           </div>
         </nav>
         <div className="absolute" style={{ top: '4.3rem', left: 0, right: 0, height: '2px', background: 'linear-gradient(to right, transparent 30%, red 50%, transparent 70%)', zIndex: 10 }}></div>
 
-        {/* Main Content with Custom Bottom Position */}
+        {/* Main Content with Shimmer Button */}
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center z-10" style={{ bottom: '40rem' }}>
           <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600 mb-4">
-            Icon AI
+          Icon AI
           </h1>
           <p className="text-lg md:text-2xl text-white mb-8">
             The most powerful AI
           </p>
-          <button className="relative px-8 py-4 bg-transparent border-2 border-gray-500 text-white text-lg rounded-full transition duration-300 overflow-hidden hover:border-gradient-to-r hover:from-red-500 hover:to-orange-600">
+          <ShimmerButton
+            className="text-lg px-8 py-4 rounded-full"
+          >
             Get Started
-          </button>
+          </ShimmerButton>
         </div>
       </div>
     </>
   );
 };
 
-export default Page;
-
-
-
-
-
-
-
-
-
+export default LandingPage;
