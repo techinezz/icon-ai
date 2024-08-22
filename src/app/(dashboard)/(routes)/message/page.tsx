@@ -13,11 +13,11 @@ interface Message {
   content: string
 }
 
-export default function Home() {
+export default function MessagePage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello I am Icon AI. How can I help you today?",
+      content: "Hello I am Icon AI. Lets have a conversation",
     },
   ])
   const [message, setMessage] = useState<string>('')
