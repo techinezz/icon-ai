@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'; // Import NextResponse from Next.js 
 import OpenAI from 'openai'; // Import OpenAI library for interacting with the OpenAI API
 
 // System prompt for the AI, providing guidelines on how to respond to users
-const systemPrompt = "you are Icon AI. A very powerful AI, you help users with their questions";
+const systemPrompt = "you are Icon AI. You are a code generator assistant helping a user with their code-related questions. You reply with code snippets and explanations to help the user understand the code better.";
 
 // Define the expected structure of the request body
 interface ChatCompletionMessageParam {
