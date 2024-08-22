@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, ChangeEvent } from 'react'
 import Navbar from '@/components/navbar'; // Import your Navbar component
 import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern'; // Import the Animated Grid Pattern component
 import { cn } from "@/lib/utils"; // Utility function for combining class names
+import AnimatedGradientText from "@/components/magicui/animated-gradient-text";
+import { ChevronRight } from "lucide-react";
 
 // Define the shape of the message object
 interface Message {
@@ -173,44 +175,115 @@ export default function Home() {
           spacing={2}
           sx={{ zIndex: 1, position: 'relative', width: '100%', marginTop: 'auto' }}
         >
-          <TextField
-            label="Type a message..."
-            fullWidth
-            value={message}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
-            sx={{
-              input: {
-                color: 'white', // White text for input
-              },
-              label: {
-                color: '#777777', // Grey label color
-              },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: '#555555', // Grey border for input
-                },
-                '&:hover fieldset': {
-                  borderColor: 'linear-gradient(90deg, #00aaff, #00ffcc, #ff88ff)', // Lighter grey on hover
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'linear-gradient(90deg, #00aaff, #00ffcc, #ff88ff)', // Green border when focused
-                },
-              },
-            }}
-          />
-          <Button
-            variant="contained"
-            onClick={sendMessage}
-            sx={{
-              bgcolor: 'linear-gradient(90deg, #00aaff, #00ffcc, #ff88ff)', // Green button
-              '&:hover': {
-                bgcolor: '#ff88ff', // Darker green on hover
-              },
-            }}
-            disabled={isLoading} // Disable the button when loading
-          >
-            Send
-          </Button>
+<TextField
+  label="Type a message..."
+  fullWidth
+  value={message}
+  onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+  InputLabelProps={{
+    shrink: true, // Ensures the label is above the input when focused or contains value
+  }}
+  sx={{
+    input: {
+      color: 'white', // White text for input
+    },
+    label: {
+      color: '#FFFFFF', // White text for the label
+      transform: 'translate(14px, -6px) scale(0.75)', // Position label above the field
+      backgroundColor: '#000', // Optional: add background color to the label
+      padding: '0 4px', // Optional: add padding to the label
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: '#FFFFFF', // Keep the label white when focused
+    },
+    '& .MuiOutlinedInput-root': {
+      position: 'relative',
+      '& fieldset': {
+        borderColor: 'transparent', // Make the original border transparent
+      },
+      '&:before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: -1,
+        borderRadius: 'inherit', // Match the border radius
+        padding: '2px', // Creates the gradient border effect
+        background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // The gradient border
+        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+        mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+        WebkitMaskComposite: 'destination-out',
+        maskComposite: 'exclude',
+      },
+      '&:hover::before': {
+        background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // Gradient on hover
+      },
+      '&.Mui-focused::before': {
+        background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // Gradient when focused
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'transparent', // Ensure the original border doesn't appear on focus
+      },
+      '& .MuiInputLabel-root': {
+        transform: 'translate(14px, -6px) scale(0.75)', // Position label above the field
+      },
+    },
+  }}
+/>
+
+<Button
+  onClick={sendMessage}
+  sx={{
+    position: 'relative',
+    backgroundColor: '#FFFFFF', // White background
+    borderRadius: '20px',
+    padding: '12px 24px',
+    border: 'none', // Ensure no border is applied directly
+    overflow: 'hidden', // Ensures that pseudo-elements don't affect button content
+    '&:before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: -1,
+      background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // Gradient effect
+      borderRadius: 'inherit',
+      padding: '2px', // This padding will create the border-like effect
+      boxSizing: 'border-box',
+    },
+    '&:after': {
+      content: '""',
+      position: 'absolute',
+      top: '2px',
+      right: '2px',
+      bottom: '2px',
+      left: '2px',
+      background: '#FFFFFF', // White background inside the gradient border
+      borderRadius: 'inherit',
+      zIndex: -1,
+    },
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textTransform: 'uppercase',
+  }}
+  disabled={isLoading}
+>
+  <AnimatedGradientText>
+    <span
+      className={cn(
+        `inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-black`,
+      )}
+    >
+      Send
+    </span>
+    <ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+  </AnimatedGradientText>
+</Button>
         </Stack>
       </Box>
     </Box>
