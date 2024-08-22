@@ -88,6 +88,65 @@ export default function MusicPage() {
       <Box width="100%" sx={{ position: 'absolute', top: 0 }}>
         <Navbar />
       </Box>
+        {/* Header Section */}
+        <Box
+          width="80%" // Adjust width to match chat container width
+          maxWidth="1300px" // Ensure it doesn't get too large
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          mt={25} // Margin from the top
+          mb={4} // Margin from the bottom before the chat container
+        >
+          <Box
+            component="h1"
+            sx={{
+              color: '#FFFFFF', // White text color
+              fontSize: '3rem', // Large font size for the main header
+              fontWeight: 'bold',
+              textAlign: 'center',
+              mt: -10, // Remove default margin top
+            }}
+          >
+            Music Generation
+          </Box>
+          <Box
+            component="h2"
+            sx={{
+              color: '#FFFFFF', // White text color
+              fontSize: '1.5rem', // Smaller font size for the subtitle
+              fontWeight: 'normal',
+              textAlign: 'center',
+              mt: 2, // Margin top for some space between header and subtitle
+            }}
+          >
+            Make Music with Icon AI
+          </Box>
+          <Box
+            component="h2"
+            sx={{
+              color: '#FFFFFF', // White text color
+              fontSize: '1.5rem', // Smaller font size for the subtitle
+              fontWeight: 'normal',
+              textAlign: 'center',
+              mt: 2, // Margin top for some space between header and subtitle
+            }}
+          >
+            Video may take up to 2 minutes to generate
+          </Box>
+          <Box
+            component="h2"
+            sx={{
+              color: '#FFFFFF', // White text color
+              fontSize: '1.5rem', // Smaller font size for the subtitle
+              fontWeight: 'normal',
+              textAlign: 'center',
+              mt: 2, // Margin top for some space between header and subtitle
+            }}
+          >
+            Chat with Icon AI
+          </Box>
+        </Box>
 
       <Box
         width="80%"
