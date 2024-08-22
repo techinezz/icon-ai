@@ -67,3 +67,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px; /* Make the scrollbar slimmer */
+}
+
+::-webkit-scrollbar-track {
+  background: #2d2d2d; /* Dark background for the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #aaaaaa; /* Light gray color for the thumb */
+  border-radius: 10px; /* Rounded corners for the thumb */
+  border: 2px solid #2d2d2d; /* Border to give space between track and thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #888888; /* Slightly darker gray when hovering */
+}
