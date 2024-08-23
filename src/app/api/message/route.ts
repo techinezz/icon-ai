@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'; // Import NextResponse from Next.js for handling responses
 import OpenAI from 'openai'; // Import OpenAI library for interacting with the OpenAI API
+import { checkApiLimit, incrementApiLimit } from '@/lib/api-limit'; // Import the API limit functions
 
 // System prompt for the AI, providing guidelines on how to respond to users
 const systemPrompt = "you are Icon AI. A very powerful AI, you help users with their questions";
@@ -12,6 +13,13 @@ interface ChatCompletionMessageParam {
 
 // POST function to handle incoming requests
 export async function POST(req: Request): Promise<NextResponse> {
+  // Check if the user is within the API limit
+  const isWithinLimit = await checkApiLimit();
+
+  if (!isWithinLimit) {
+    return NextResponse.json({ error: 'API limit exceeded' }, { status: 429 }); // Return 429 status if limit is exceeded
+  }
+
   const openai = new OpenAI(); // Create a new instance of the OpenAI client
   const data: ChatCompletionMessageParam[] = await req.json(); // Parse the JSON body of the incoming request
 
@@ -42,5 +50,9 @@ export async function POST(req: Request): Promise<NextResponse> {
     },
   });
 
+  // Increment the API limit after a successful operation
+  await incrementApiLimit();
+
   return new NextResponse(stream as unknown as BodyInit); // Cast stream to BodyInit type
 }
+
