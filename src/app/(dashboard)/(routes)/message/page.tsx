@@ -6,6 +6,8 @@ import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern'; //
 import { cn } from "@/lib/utils"; // Utility function for combining class names
 import AnimatedGradientText from "@/components/magicui/animated-gradient-text";
 import { ChevronRight } from "lucide-react";
+// import { checkApiLimit, incrementApiLimit } from '@/lib/api-limit';
+import { NextResponse } from 'next/server';
 
 // Define the shape of the message object
 interface Message {
@@ -34,16 +36,16 @@ export default function MessagePage() {
   }, [messages])
 
   const sendMessage = async () => {
-    if (!message.trim() || isLoading) return
-    setIsLoading(true)
-
-    const userMessage = message
-    setMessage('')
+    if (!message.trim() || isLoading) return;
+    setIsLoading(true);
+  
+    const userMessage = message;
+    setMessage('');
     setMessages((messages) => [
       ...messages,
       { role: 'user', content: userMessage },
-    ])
-
+    ]);
+  
     try {
       const response = await fetch('/api/message', {
         method: 'POST',
@@ -51,41 +53,49 @@ export default function MessagePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify([...messages, { role: 'user', content: userMessage }]),
-      })
-
+      });
+  
+      if (response.status === 429) { // Check if the API limit has been exceeded
+        setMessages((messages) => [
+          ...messages,
+          { role: 'assistant', content: "API limit exceeded." },
+        ]);
+        return; // Exit early if API limit is exceeded
+      }
+  
       if (!response.ok) {
-        const errorMessage = await response.text()
-        throw new Error(`Network response was not ok: ${errorMessage}`)
+        const errorMessage = await response.text();
+        throw new Error(`Network response was not ok: ${errorMessage}`);
       }
-
-      const reader = response.body?.getReader()
+  
+      const reader = response.body?.getReader();
       if (!reader) {
-        throw new Error('No readable stream found in response')
+        throw new Error('No readable stream found in response');
       }
-
-      const decoder = new TextDecoder()
-      let assistantMessage = ''
-
+  
+      const decoder = new TextDecoder();
+      let assistantMessage = '';
+  
       while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        assistantMessage += decoder.decode(value, { stream: true })
+        const { done, value } = await reader.read();
+        if (done) break;
+        assistantMessage += decoder.decode(value, { stream: true });
       }
-
+  
       setMessages((messages) => [
         ...messages,
         { role: 'assistant', content: assistantMessage },
-      ])
+      ]);
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error);
       setMessages((messages) => [
         ...messages,
         { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
-      ])
+      ]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
       <Box
