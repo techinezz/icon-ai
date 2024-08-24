@@ -1,11 +1,12 @@
 'use client'
-import { Box, Button, Stack, TextField } from '@mui/material'
+import { Box, Button, Stack, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, LinearProgress, Typography } from '@mui/material'
 import { useState, useRef, useEffect, ChangeEvent } from 'react'
-import Navbar from '@/components/navbar';
-import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern';
-import { cn } from "@/lib/utils";
+import Navbar from '@/components/navbar'; // Import your Navbar component
+import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern'; // Import the Animated Grid Pattern component
+import { cn } from "@/lib/utils"; // Utility function for combining class names
 import AnimatedGradientText from "@/components/magicui/animated-gradient-text";
 import { ChevronRight } from "lucide-react";
+
 
 interface Message {
   role: 'assistant' | 'user';
@@ -22,6 +23,10 @@ export default function VideoPage() {
   ])
   const [message, setMessage] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isApiLimitExceeded, setIsApiLimitExceeded] = useState<boolean>(false); // State for API limit pop-up
+  const [apiUsage, setApiUsage] = useState<number>(0); // Track the number of API calls used
+  const maxApiUsage = 5; // Define the maximum number of free API calls
+
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -30,8 +35,23 @@ export default function VideoPage() {
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    const fetchApiUsage = async () => {
+      try {
+        const response = await fetch('/api/getApiUsage');
+        if (response.ok) {
+          const data = await response.json();
+          setApiUsage(data.usage);
+        } else {
+          console.error('Failed to fetch API usage');
+        }
+      } catch (error) {
+        console.error('Error fetching API usage:', error);
+      }
+    };
+
+    fetchApiUsage();
+    scrollToBottom();
+  }, []);
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return
@@ -51,7 +71,14 @@ export default function VideoPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify([...messages, { role: 'user', content: userMessage }]),
-      })
+      });
+      if (response.status === 429) { // Check if the API limit has been exceeded
+        setIsApiLimitExceeded(true); // Trigger the pop-up
+        return; // Exit early if API limit is exceeded
+      }
+
+      // Increment API usage count if the call was successful
+      setApiUsage(prevUsage => Math.min(prevUsage + 1, maxApiUsage)); // Ensure it doesn't exceed maxApiUsage
 
       if (!response.ok) {
         const errorMessage = await response.text()
@@ -135,18 +162,25 @@ export default function VideoPage() {
           >
             Video may take up to 4 minutes to generate
           </Box>
-          <Box
-            component="h2"
+        {/* API Usage Progression Line */}
+        <Box width="100%" maxWidth="600px" mt={2}>
+          <Typography variant="body1" color="white" align="center">
+            {apiUsage}/{maxApiUsage} free uses
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={(apiUsage / maxApiUsage) * 100}
             sx={{
-              color: '#FFFFFF', // White text color
-              fontSize: '1.5rem', // Smaller font size for the subtitle
-              fontWeight: 'normal',
-              textAlign: 'center',
-              mt: 2, // Margin top for some space between header and subtitle
+              height: 10,
+              borderRadius: 5,
+              mt: 1,
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'red',
+              },
+              backgroundColor: '#444', // Background color of the progress line
             }}
-          >
-            Chat with Icon AI
-          </Box>
+          />
+        </Box>
         </Box>
 
       <Box
@@ -335,6 +369,35 @@ export default function VideoPage() {
           </Button>
         </Stack>
       </Box>
+      {/* API Limit Exceeded Pop-Up */}
+      <Dialog
+        open={isApiLimitExceeded}
+        onClose={() => setIsApiLimitExceeded(false)}
+      >
+        <DialogTitle sx={{ textAlign: 'center' }}>API Limit Exceeded</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ textAlign: 'center' }}>
+            You have reached the maximum number of API requests allowed. Please subscribe to the pro version to continue using Icon AI.
+          </DialogContentText>
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setIsApiLimitExceeded(false);
+                // Handle the "Go Pro" button click event here
+              }}
+            >
+              Go Pro
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsApiLimitExceeded(false)} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

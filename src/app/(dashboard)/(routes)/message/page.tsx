@@ -1,15 +1,12 @@
 'use client'
-import { Box, Button, Stack, TextField } from '@mui/material'
+import { Box, Button, Stack, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, LinearProgress, Typography } from '@mui/material'
 import { useState, useRef, useEffect, ChangeEvent } from 'react'
 import Navbar from '@/components/navbar'; // Import your Navbar component
 import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern'; // Import the Animated Grid Pattern component
 import { cn } from "@/lib/utils"; // Utility function for combining class names
 import AnimatedGradientText from "@/components/magicui/animated-gradient-text";
 import { ChevronRight } from "lucide-react";
-// import { checkApiLimit, incrementApiLimit } from '@/lib/api-limit';
-import { NextResponse } from 'next/server';
 
-// Define the shape of the message object
 interface Message {
   role: 'assistant' | 'user'
   content: string
@@ -19,11 +16,14 @@ export default function MessagePage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello I am Icon AI. Lets have a conversation",
+      content: "Hello I am Icon AI. Let's have a conversation",
     },
   ])
   const [message, setMessage] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isApiLimitExceeded, setIsApiLimitExceeded] = useState<boolean>(false); // State for API limit pop-up
+  const [apiUsage, setApiUsage] = useState<number>(0); // Track the number of API calls used
+  const maxApiUsage = 5; // Define the maximum number of free API calls
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -32,20 +32,35 @@ export default function MessagePage() {
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    const fetchApiUsage = async () => {
+      try {
+        const response = await fetch('/api/getApiUsage');
+        if (response.ok) {
+          const data = await response.json();
+          setApiUsage(data.usage);
+        } else {
+          console.error('Failed to fetch API usage');
+        }
+      } catch (error) {
+        console.error('Error fetching API usage:', error);
+      }
+    };
+
+    fetchApiUsage();
+    scrollToBottom();
+  }, []);
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
     setIsLoading(true);
-  
+
     const userMessage = message;
     setMessage('');
     setMessages((messages) => [
       ...messages,
       { role: 'user', content: userMessage },
     ]);
-  
+
     try {
       const response = await fetch('/api/message', {
         method: 'POST',
@@ -54,34 +69,34 @@ export default function MessagePage() {
         },
         body: JSON.stringify([...messages, { role: 'user', content: userMessage }]),
       });
-  
+
       if (response.status === 429) { // Check if the API limit has been exceeded
-        setMessages((messages) => [
-          ...messages,
-          { role: 'assistant', content: "API limit exceeded." },
-        ]);
+        setIsApiLimitExceeded(true); // Trigger the pop-up
         return; // Exit early if API limit is exceeded
       }
-  
+
+      // Increment API usage count if the call was successful
+      setApiUsage(prevUsage => Math.min(prevUsage + 1, maxApiUsage)); // Ensure it doesn't exceed maxApiUsage
+
       if (!response.ok) {
         const errorMessage = await response.text();
         throw new Error(`Network response was not ok: ${errorMessage}`);
       }
-  
+
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('No readable stream found in response');
       }
-  
+
       const decoder = new TextDecoder();
       let assistantMessage = '';
-  
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         assistantMessage += decoder.decode(value, { stream: true });
       }
-  
+
       setMessages((messages) => [
         ...messages,
         { role: 'assistant', content: assistantMessage },
@@ -98,252 +113,290 @@ export default function MessagePage() {
   };
 
   return (
+    <Box
+      width="100vw"
+      height="100vh"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      bgcolor="#000000"
+    >
+      {/* Include Navbar at the very top, aligned to the top */}
+      <Box width="100%" sx={{ position: 'absolute', top: 0 }}>
+        <Navbar />
+      </Box>
+
+      {/* Header Section */}
       <Box
-        width="100vw"
-        height="100vh"
+        width="80%"
+        maxWidth="1300px"
         display="flex"
         flexDirection="column"
         alignItems="center"
-        justifyContent="center" // Center content vertically
-        bgcolor="#000000" // Set the background to black
+        mt={25}
+        mb={4}
       >
-        {/* Include Navbar at the very top, aligned to the top */}
-        <Box width="100%" sx={{ position: 'absolute', top: 0 }}>
-          <Navbar />
-        </Box>
-  
-        {/* Header Section */}
         <Box
-          width="80%" // Adjust width to match chat container width
-          maxWidth="1300px" // Ensure it doesn't get too large
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          mt={25} // Margin from the top
-          mb={4} // Margin from the bottom before the chat container
-        >
-          <Box
-            component="h1"
-            sx={{
-              color: '#FFFFFF', // White text color
-              fontSize: '3rem', // Large font size for the main header
-              fontWeight: 'bold',
-              textAlign: 'center',
-              mt: -10, // Remove default margin top
-            }}
-          >
-            Messages
-          </Box>
-          <Box
-            component="h2"
-            sx={{
-              color: '#FFFFFF', // White text color
-              fontSize: '1.5rem', // Smaller font size for the subtitle
-              fontWeight: 'normal',
-              textAlign: 'center',
-              mt: 2, // Margin top for some space between header and subtitle
-            }}
-          >
-            Chat with Icon AI
-          </Box>
-          <Box
-            component="h2"
-            sx={{
-              color: '#FFFFFF', // White text color
-              fontSize: '1.5rem', // Smaller font size for the subtitle
-              fontWeight: 'normal',
-              textAlign: 'center',
-              mt: 2, // Margin top for some space between header and subtitle
-            }}
-          >
-            Chat with Icon AI
-          </Box>
-        </Box>
-  
-        {/* Main chat container */}
-        <Box
-          width="80%" // Adjust width to your preference, e.g., 80% of the screen width
-          maxWidth="1300px" // Max width to ensure it doesn't get too large
-          height="70vh" // Set a fixed height for the chat container
-          display="flex"
-          flexDirection="column"
-          justifyContent="flex-start" // Start content at the top
-          alignItems="center"
-          p={2}
+          component="h1"
           sx={{
-            backgroundColor: 'transparent', // Make background transparent so the grid pattern is visible
-            borderRadius: '16px',
-            position: 'relative', // Ensure correct stacking order
-            overflow: 'hidden', // Hide any overflow from the grid
+            color: '#FFFFFF',
+            fontSize: '3rem',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            mt: -10,
           }}
-          className="relative flex w-full items-center overflow-hidden"
         >
-          {/* Animated Grid Pattern Background */}
-          <AnimatedGridPattern
-            numSquares={30}
-            maxOpacity={2.1}
-            duration={3}
-            repeatDelay={1}
-            className={cn(
-              "[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]",
-              "absolute inset-x-0 top-0 h-full", // Adjusted position and height to cover the entire container
-            )}
-          />
-  
-          {/* Messages Stack */}
-          <Stack
-            direction={'column'}
-            spacing={2}
-            width="100%"
-            height="calc(100% - 60px)" // Leave room for the input field
-            overflow="auto" // Allow the messages stack to scroll
+          Messages
+        </Box>
+        <Box
+          component="h2"
+          sx={{
+            color: '#FFFFFF',
+            fontSize: '1.5rem',
+            fontWeight: 'normal',
+            textAlign: 'center',
+            mt: 2,
+          }}
+        >
+          Chat with Icon AI
+        </Box>
+
+        {/* API Usage Progression Line */}
+        <Box width="100%" maxWidth="600px" mt={2}>
+          <Typography variant="body1" color="white" align="center">
+            {apiUsage}/{maxApiUsage} free uses
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={(apiUsage / maxApiUsage) * 100}
             sx={{
-              position: 'relative', // Ensure it stacks on top of the background
-              zIndex: 1, // Ensure content is above the background
+              height: 10,
+              borderRadius: 5,
+              mt: 1,
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'red',
+              },
+              backgroundColor: '#444', // Background color of the progress line
             }}
-          >
-            {messages.map((message, index) => (
+          />
+        </Box>
+      </Box>
+
+      {/* Main chat container */}
+      <Box
+        width="80%"
+        maxWidth="1300px"
+        height="70vh"
+        display="flex"
+        flexDirection="column"
+        justifyContent="flex-start"
+        alignItems="center"
+        p={2}
+        sx={{
+          backgroundColor: 'transparent',
+          borderRadius: '16px',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+        className="relative flex w-full items-center overflow-hidden"
+      >
+        {/* Animated Grid Pattern Background */}
+        <AnimatedGridPattern
+          numSquares={30}
+          maxOpacity={2.1}
+          duration={3}
+          repeatDelay={1}
+          className={cn(
+            "[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]",
+            "absolute inset-x-0 top-0 h-full",
+          )}
+        />
+
+        {/* Messages Stack */}
+        <Stack
+          direction={'column'}
+          spacing={2}
+          width="100%"
+          height="calc(100% - 60px)"
+          overflow="auto"
+          sx={{
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          {messages.map((message, index) => (
+            <Box
+              key={index}
+              display="flex"
+              justifyContent={
+                message.role === 'assistant' ? 'flex-start' : 'flex-end'
+              }
+            >
               <Box
-                key={index}
-                display="flex"
-                justifyContent={
-                  message.role === 'assistant' ? 'flex-start' : 'flex-end'
-                }
+                sx={{
+                  bgcolor: message.role === 'assistant' ? '#0A3D62' : '#1F1F1F',
+                  color: message.role === 'assistant' ? '#EAEAEA' : '#FFFFFF',
+                  borderRadius: '20px',
+                  p: 4,
+                  maxWidth: '75%',
+                  boxShadow: 3,
+                }}
               >
-                <Box
-                  sx={{
-                    bgcolor: message.role === 'assistant' ? '#0A3D62' : '#1F1F1F', // AI: Midnight Blue, User: Charcoal Gray
-                    color: message.role === 'assistant' ? '#EAEAEA' : '#FFFFFF',  // Text colors
-                    borderRadius: '20px',
-                    p: 4,
-                    maxWidth: '75%',
-                    boxShadow: 3, // Add some shadow for a pop effect
-                  }}
-                >
-                  {message.content}
-                </Box>
+                {message.content}
               </Box>
-            ))}
-            <div ref={messagesEndRef} />
-          </Stack>
-  
-          {/* Input Section */}
-          <Stack
-            direction={'row'}
-            spacing={2}
-            sx={{ zIndex: 1, position: 'relative', width: '100%', marginTop: 'auto' }}
-          >
-            <TextField
-              label="Type a message..."
-              fullWidth
-              value={message}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
-              InputLabelProps={{
-                shrink: true, // Ensures the label is above the input when focused or contains value
-              }}
-              sx={{
-                input: {
-                  color: 'white', // White text for input
-                },
-                label: {
-                  color: '#FFFFFF', // White text for the label
-                  transform: 'translate(14px, -6px) scale(0.75)', // Position label above the field
-                  backgroundColor: '#000', // Optional: add background color to the label
-                  padding: '0 4px', // Optional: add padding to the label
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#FFFFFF', // Keep the label white when focused
-                },
-                '& .MuiOutlinedInput-root': {
-                  position: 'relative',
-                  '& fieldset': {
-                    borderColor: 'transparent', // Make the original border transparent
-                  },
-                  '&:before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    zIndex: -1,
-                    borderRadius: 'inherit', // Match the border radius
-                    padding: '2px', // Creates the gradient border effect
-                    background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // The gradient border
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'destination-out',
-                    maskComposite: 'exclude',
-                  },
-                  '&:hover::before': {
-                    background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // Gradient on hover
-                  },
-                  '&.Mui-focused::before': {
-                    background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // Gradient when focused
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'transparent', // Ensure the original border doesn't appear on focus
-                  },
-                  '& .MuiInputLabel-root': {
-                    transform: 'translate(14px, -6px) scale(0.75)', // Position label above the field
-                  },
-                },
-              }}
-            />
-  
-            <Button
-              onClick={sendMessage}
-              sx={{
+            </Box>
+          ))}
+          <div ref={messagesEndRef} />
+        </Stack>
+
+        {/* Input Section */}
+        <Stack
+          direction={'row'}
+          spacing={2}
+          sx={{ zIndex: 1, position: 'relative', width: '100%', marginTop: 'auto' }}
+        >
+          <TextField
+            label="Type a message..."
+            fullWidth
+            value={message}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            sx={{
+              input: {
+                color: 'white',
+              },
+              label: {
+                color: '#FFFFFF',
+                transform: 'translate(14px, -6px) scale(0.75)',
+                backgroundColor: '#000',
+                padding: '0 4px',
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#FFFFFF',
+              },
+              '& .MuiOutlinedInput-root': {
                 position: 'relative',
-                backgroundColor: '#FFFFFF', // White background
-                borderRadius: '20px',
-                padding: '12px 24px',
-                border: 'none', // Ensure no border is applied directly
-                overflow: 'hidden', // Ensures that pseudo-elements don't affect button content
+                '& fieldset': {
+                  borderColor: 'transparent',
+                },
                 '&:before': {
                   content: '""',
                   position: 'absolute',
                   top: 0,
+                  left: 0,
                   right: 0,
                   bottom: 0,
-                  left: 0,
                   zIndex: -1,
-                  background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)', // Gradient effect
                   borderRadius: 'inherit',
-                  padding: '2px', // This padding will create the border-like effect
-                  boxSizing: 'border-box',
+                  padding: '2px',
+                  background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)',
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'destination-out',
+                  maskComposite: 'exclude',
                 },
-                '&:after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: '2px',
-                  right: '2px',
-                  bottom: '2px',
-                  left: '2px',
-                  background: '#FFFFFF', // White background inside the gradient border
-                  borderRadius: 'inherit',
-                  zIndex: -1,
+                '&:hover::before': {
+                  background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)',
                 },
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textTransform: 'uppercase',
-              }}
-              disabled={isLoading}
-            >
-              <AnimatedGradientText>
-                <span
-                  className={cn(
-                    `inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-black`,
-                  )}
-                >
-                  Send
-                </span>
-                <ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-              </AnimatedGradientText>
-            </Button>
-          </Stack>
-        </Box>
+                '&.Mui-focused::before': {
+                  background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'transparent',
+                },
+                '& .MuiInputLabel-root': {
+                  transform: 'translate(14px, -6px) scale(0.75)',
+                },
+              },
+            }}
+          />
+
+          <Button
+            onClick={sendMessage}
+            sx={{
+              position: 'relative',
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              padding: '12px 24px',
+              border: 'none',
+              overflow: 'hidden',
+              '&:before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                zIndex: -1,
+                background: 'linear-gradient(90deg, #ffaa40, #9c40ff, #ffaa40)',
+                borderRadius: 'inherit',
+                padding: '2px',
+                boxSizing: 'border-box',
+              },
+              '&:after': {
+                content: '""',
+                position: 'absolute',
+                top: '2px',
+                right: '2px',
+                bottom: '2px',
+                left: '2px',
+                background: '#FFFFFF',
+                borderRadius: 'inherit',
+                zIndex: -1,
+              },
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textTransform: 'uppercase',
+            }}
+            disabled={isLoading}
+          >
+            <AnimatedGradientText>
+              <span
+                className={cn(
+                  `inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-black`,
+                )}
+              >
+                Send
+              </span>
+              <ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+            </AnimatedGradientText>
+          </Button>
+        </Stack>
       </Box>
+
+      {/* API Limit Exceeded Pop-Up */}
+      <Dialog
+        open={isApiLimitExceeded}
+        onClose={() => setIsApiLimitExceeded(false)}
+      >
+        <DialogTitle sx={{ textAlign: 'center' }}>API Limit Exceeded</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ textAlign: 'center' }}>
+            You have reached the maximum number of API requests allowed. Please subscribe to the pro version to continue using Icon AI.
+          </DialogContentText>
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setIsApiLimitExceeded(false);
+                // Handle the "Go Pro" button click event here
+              }}
+            >
+              Go Pro
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsApiLimitExceeded(false)} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
 }
