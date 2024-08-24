@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import Replicate from 'replicate';
+import { checkApiLimit, incrementApiLimit } from '@/lib/api-limit'; // Import the API limit functions
 
 // POST function to handle incoming requests
 export async function POST(req: Request): Promise<NextResponse> {
+  // Check if the user is within the API limit
+  const isWithinLimit = await checkApiLimit();
+
+  if (!isWithinLimit) {
+    return NextResponse.json({ error: 'API limit exceeded' }, { status: 429 }); // Return 429 status if limit is exceeded
+  }
+
   const replicate = new Replicate({
     auth: process.env.REPLICATE_API_TOKEN, // Ensure your environment variable is set
   });
@@ -27,6 +35,9 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
 
     const videoUrl = output[0]; // Get the URL of the generated video (assuming output is an array with the URL as the first element)
+
+    // Increment the API limit after a successful operation
+    await incrementApiLimit();
 
     return NextResponse.json({ videoUrl }); // Respond with the video URL
   } catch (err) {
