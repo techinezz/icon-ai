@@ -8,58 +8,35 @@ const dashboardPage = () => {
 
   const tabs = ['Message', 'Code', 'Image', 'Video', 'Music'];
 
+  const renderImage = (src: string, alt: string) => (
+    <div className="flex justify-center items-center">
+      <div className="relative">
+        <img 
+          src={src} 
+          alt={alt}
+          className="rounded-lg shadow-lg border border-transparent"
+          style={{
+            backgroundClip: 'padding-box',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          }}
+        />
+        <div className="absolute inset-0 rounded-lg border border-white opacity-20 pointer-events-none"></div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeTab) {
       case 'Message':
-        return (
-          <div className="flex justify-center items-center">
-            <img 
-              src="/img1.png" 
-              alt="Message"
-              className="border border-transparent rounded-lg shadow-lg"
-            />
-          </div>
-        );
+        return renderImage('/img1.png', 'Message');
       case 'Code':
-        return (
-          <div className="flex justify-center items-center">
-            <img 
-              src="/img2.png" 
-              alt="Code" 
-              className="border border-transparent rounded-lg shadow-lg"
-            />
-          </div>
-        );
+        return renderImage('/img2.png', 'Code');
       case 'Image':
-        return (
-          <div className="flex justify-center items-center">
-            <img 
-              src="/img3.png" 
-              alt="Image"
-              className="border border-transparent rounded-lg shadow-lg" 
-            />
-          </div>
-        );
+        return renderImage('/img3.png', 'Image');
       case 'Video':
-        return (
-          <div className="flex justify-center items-center">
-            <img 
-              src="/img4.png" 
-              alt="Video" 
-              className="border border-transparent rounded-lg shadow-lg"
-            />
-          </div>
-        );
+        return renderImage('/img4.png', 'Video');
       case 'Music':
-        return (
-          <div className="flex justify-center items-center">
-            <img 
-              src="/img5.png" 
-              alt="Music"
-              className="border border-transparent rounded-lg shadow-lg"
-            />
-          </div>
-        );
+        return renderImage('/img5.png', 'Music');
       default:
         return null;
     }
