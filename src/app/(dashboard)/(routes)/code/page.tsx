@@ -49,7 +49,7 @@ export default function CodePage() {
 
     fetchApiUsage();
     scrollToBottom();
-  }, []);
+  }, [])
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return
