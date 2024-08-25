@@ -1,8 +1,9 @@
 'use client';
 import Navbar from "@/components/navbar";
 import { useState } from 'react';
+import Image from 'next/image';
 
-const dashboardPage = () => {
+const DashboardPage = () => {
   // Set 'Message' as the default active tab
   const [activeTab, setActiveTab] = useState('Message');
 
@@ -11,10 +12,13 @@ const dashboardPage = () => {
   const renderImage = (src: string, alt: string) => (
     <div className="flex justify-center items-center">
       <div className="relative">
-        <img 
-          src={src} 
-          alt={alt}
-          className="rounded-lg shadow-lg border border-transparent"
+        <Image
+        src={src} 
+        alt={alt}
+        className="rounded-lg shadow-lg border border-transparent"
+        layout="responsive"
+        width={500}
+        height={300} 
           style={{
             backgroundClip: 'padding-box',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -75,4 +79,4 @@ const dashboardPage = () => {
   );
 };
 
-export default dashboardPage;
+export default DashboardPage;
