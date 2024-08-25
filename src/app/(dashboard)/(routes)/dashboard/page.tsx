@@ -14,7 +14,7 @@ const dashboardPage = () => {
         return (
           <div className="flex justify-center items-center">
             <img 
-              src="/img1.jpg" 
+              src="/img1.png" 
               alt="Message"
               className="border border-transparent rounded-lg shadow-lg"
             />
@@ -24,7 +24,7 @@ const dashboardPage = () => {
         return (
           <div className="flex justify-center items-center">
             <img 
-              src="/img2.jpg" 
+              src="/img2.png" 
               alt="Code" 
               className="border border-transparent rounded-lg shadow-lg"
             />
@@ -34,7 +34,7 @@ const dashboardPage = () => {
         return (
           <div className="flex justify-center items-center">
             <img 
-              src="/img3.jpg" 
+              src="/img3.png" 
               alt="Image"
               className="border border-transparent rounded-lg shadow-lg" 
             />
@@ -44,7 +44,7 @@ const dashboardPage = () => {
         return (
           <div className="flex justify-center items-center">
             <img 
-              src="/img4.jpg" 
+              src="/img4.png" 
               alt="Video" 
               className="border border-transparent rounded-lg shadow-lg"
             />
@@ -54,7 +54,7 @@ const dashboardPage = () => {
         return (
           <div className="flex justify-center items-center">
             <img 
-              src="/img1.jpg" 
+              src="/img5.png" 
               alt="Music"
               className="border border-transparent rounded-lg shadow-lg"
             />

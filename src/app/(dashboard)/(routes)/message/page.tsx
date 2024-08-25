@@ -376,7 +376,7 @@ export default function MessagePage() {
         <DialogTitle sx={{ textAlign: 'center' }}>API Limit Exceeded</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ textAlign: 'center' }}>
-            You have reached the maximum number of API requests allowed. Please subscribe to the pro version to continue using Icon AI.
+            You have reached the maximum number of API requests allowed.
           </DialogContentText>
           <Box display="flex" justifyContent="center" mt={2}>
             <Button
@@ -387,13 +387,13 @@ export default function MessagePage() {
                 // Handle the "Go Pro" button click event here
               }}
             >
-              Go Pro
+              Thank you for trying out my AI Project
             </Button>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsApiLimitExceeded(false)} color="primary">
-            OK
+            Exit
           </Button>
         </DialogActions>
       </Dialog>
