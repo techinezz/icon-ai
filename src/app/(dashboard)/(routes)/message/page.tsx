@@ -1,6 +1,6 @@
 'use client'
 import { Box, Button, Stack, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, LinearProgress, Typography } from '@mui/material'
-import { useState, useRef, useEffect, ChangeEvent } from 'react'
+import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react'
 import Navbar from '@/components/navbar'; // Import your Navbar component
 import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern'; // Import the Animated Grid Pattern component
 import { cn } from "@/lib/utils"; // Utility function for combining class names
@@ -109,6 +109,14 @@ export default function MessagePage() {
       ]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Function to handle "Enter" key press
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
@@ -261,6 +269,7 @@ export default function MessagePage() {
             fullWidth
             value={message}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
             InputLabelProps={{
               shrink: true,
             }}

@@ -1,6 +1,6 @@
 'use client'
 import { Box, Button, Stack, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, LinearProgress, Typography } from '@mui/material'
-import { useState, useRef, useEffect, ChangeEvent } from 'react'
+import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react'
 import Navbar from '@/components/navbar'; // Import your Navbar component
 import AnimatedGridPattern from '@/components/magicui/animated-grid-pattern'; // Import the Animated Grid Pattern component
 import { cn } from "@/lib/utils"; // Utility function for combining class names
@@ -110,6 +110,14 @@ export default function CodePage() {
       setIsLoading(false)
     }
   }
+
+  // Function to handle "Enter" key press
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   return (
     <Box
@@ -274,6 +282,7 @@ export default function CodePage() {
             fullWidth
             value={message}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
             InputLabelProps={{
               shrink: true,
             }}
@@ -389,7 +398,7 @@ export default function CodePage() {
         <DialogTitle sx={{ textAlign: 'center' }}>API Limit Exceeded</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ textAlign: 'center' }}>
-            You have reached the maximum number of API requests allowed. Please subscribe to the pro version to continue using Icon AI.
+            You have reached the maximum number of API requests allowed.
           </DialogContentText>
           <Box display="flex" justifyContent="center" mt={2}>
             <Button
@@ -400,13 +409,13 @@ export default function CodePage() {
                 // Handle the "Go Pro" button click event here
               }}
             >
-              Go Pro
+              Thank you for trying out my AI Project
             </Button>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsApiLimitExceeded(false)} color="primary">
-            OK
+            Exit
           </Button>
         </DialogActions>
       </Dialog>
